@@ -9,12 +9,22 @@ namespace Nop.Plugin.DiscountRules.BillingCountry
 {
     public partial class BillingCountryDiscountRequirementRule : BasePlugin, IDiscountRequirementRule
     {
+        #region Fields
+
         private readonly ISettingService _settingService;
+
+        #endregion
+
+        #region Ctor
 
         public BillingCountryDiscountRequirementRule(ISettingService settingService)
         {
             this._settingService = settingService;
         }
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Check discount requirement
@@ -41,6 +51,7 @@ namespace Nop.Plugin.DiscountRules.BillingCountry
                 return result;
 
             result.IsValid = request.Customer.BillingAddress.CountryId == billingCountryId;
+
             return result;
         }
 
@@ -56,6 +67,7 @@ namespace Nop.Plugin.DiscountRules.BillingCountry
             string result = "Plugins/DiscountRulesBillingCountry/Configure/?discountId=" + discountId;
             if (discountRequirementId.HasValue)
                 result += string.Format("&discountRequirementId={0}", discountRequirementId.Value);
+
             return result;
         }
         
@@ -76,5 +88,7 @@ namespace Nop.Plugin.DiscountRules.BillingCountry
             this.DeletePluginLocaleResource("Plugins.DiscountRules.BillingCountry.Fields.Country.Hint");
             base.Uninstall();
         }
+
+        #endregion
     }
 }

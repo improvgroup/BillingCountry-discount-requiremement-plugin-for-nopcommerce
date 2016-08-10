@@ -6,6 +6,8 @@ namespace Nop.Plugin.DiscountRules.BillingCountry
 {
     public partial class RouteProvider : IRouteProvider
     {
+        #region Methods
+
         public void RegisterRoutes(RouteCollection routes)
         {
             routes.MapRoute("Plugin.DiscountRules.BillingCountry.Configure",
@@ -21,5 +23,7 @@ namespace Nop.Plugin.DiscountRules.BillingCountry
                 return 0;
             }
         }
+
+        #endregion
     }
 }

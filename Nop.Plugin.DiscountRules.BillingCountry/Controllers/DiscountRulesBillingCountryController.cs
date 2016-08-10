@@ -16,15 +16,23 @@ namespace Nop.Plugin.DiscountRules.BillingCountry.Controllers
     [AdminAuthorize]
     public class DiscountRulesBillingCountryController : BasePluginController
     {
+        #region Fields
+
         private readonly ILocalizationService _localizationService;
         private readonly IDiscountService _discountService;
         private readonly ICountryService _countryService;
         private readonly ISettingService _settingService;
         private readonly IPermissionService _permissionService;
 
+        #endregion
+
+        #region Ctor
+
         public DiscountRulesBillingCountryController(ILocalizationService localizationService, 
-            IDiscountService discountService, ICountryService countryService,
-            ISettingService settingService, IPermissionService permissionService)
+            IDiscountService discountService, 
+            ICountryService countryService,
+            ISettingService settingService, 
+            IPermissionService permissionService)
         {
             this._localizationService = localizationService;
             this._discountService = discountService;
@@ -32,6 +40,10 @@ namespace Nop.Plugin.DiscountRules.BillingCountry.Controllers
             this._settingService = settingService;
             this._permissionService = permissionService;
         }
+
+        #endregion
+
+        #region Methods
 
         public ActionResult Configure(int discountId, int? discountRequirementId)
         {
@@ -52,10 +64,13 @@ namespace Nop.Plugin.DiscountRules.BillingCountry.Controllers
 
             var billingCountryId = _settingService.GetSettingByKey<int>(string.Format("DiscountRequirement.BillingCountry-{0}", discountRequirementId.HasValue ? discountRequirementId.Value : 0));
 
-            var model = new RequirementModel();
-            model.RequirementId = discountRequirementId.HasValue ? discountRequirementId.Value : 0;
-            model.DiscountId = discountId;
-            model.CountryId = billingCountryId;
+            var model = new RequirementModel
+            {
+                RequirementId = discountRequirementId.HasValue ? discountRequirementId.Value : 0,
+                DiscountId = discountId,
+                CountryId = billingCountryId
+            };
+
             //countries
             model.AvailableCountries.Add(new SelectListItem() { Text = _localizationService.GetResource("Plugins.DiscountRules.BillingCountry.Fields.SelectCountry"), Value = "0" });
             foreach (var c in _countryService.GetAllCountries(showHidden: true))
@@ -99,7 +114,10 @@ namespace Nop.Plugin.DiscountRules.BillingCountry.Controllers
                 
                 _settingService.SetSetting(string.Format("DiscountRequirement.BillingCountry-{0}", discountRequirement.Id), countryId);
             }
+
             return Json(new { Result = true, NewRequirementId = discountRequirement.Id }, JsonRequestBehavior.AllowGet);
         }
+
+        #endregion
     }
 }
