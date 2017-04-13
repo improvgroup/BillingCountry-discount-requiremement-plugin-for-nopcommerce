@@ -79,7 +79,7 @@ namespace Nop.Plugin.DiscountRules.BillingCountry.Controllers
             //add a prefix
             ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("DiscountRulesBillingCountry{0}", discountRequirementId.HasValue ? discountRequirementId.Value.ToString() : "0");
 
-            return View("~/Plugins/DiscountRules.BillingCountry/Views/DiscountRulesBillingCountry/Configure.cshtml", model);
+            return View("~/Plugins/DiscountRules.BillingCountry/Views/Configure.cshtml", model);
         }
 
         [HttpPost]
