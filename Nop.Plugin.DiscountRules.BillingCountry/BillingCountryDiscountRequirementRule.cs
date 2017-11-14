@@ -33,7 +33,7 @@ namespace Nop.Plugin.DiscountRules.BillingCountry
         public DiscountRequirementValidationResult CheckRequirement(DiscountRequirementValidationRequest request)
         {
             if (request == null)
-                throw new ArgumentNullException("request");
+                throw new ArgumentNullException(nameof(request));
 
             //invalid by default
             var result = new DiscountRequirementValidationResult();
@@ -44,7 +44,7 @@ namespace Nop.Plugin.DiscountRules.BillingCountry
             if (request.Customer.BillingAddress == null)
                 return result;
 
-            var billingCountryId = _settingService.GetSettingByKey<int>(string.Format("DiscountRequirement.BillingCountry-{0}", request.DiscountRequirementId));
+            var billingCountryId = _settingService.GetSettingByKey<int>($"DiscountRequirement.BillingCountry-{request.DiscountRequirementId}");
 
             if (billingCountryId == 0)
                 return result;
@@ -63,13 +63,13 @@ namespace Nop.Plugin.DiscountRules.BillingCountry
         public string GetConfigurationUrl(int discountId, int? discountRequirementId)
         {
             //configured in RouteProvider.cs
-            string result = "Plugins/DiscountRulesBillingCountry/Configure/?discountId=" + discountId;
+            var result = "Plugins/DiscountRulesBillingCountry/Configure/?discountId=" + discountId;
             if (discountRequirementId.HasValue)
-                result += string.Format("&discountRequirementId={0}", discountRequirementId.Value);
+                result += $"&discountRequirementId={discountRequirementId.Value}";
 
             return result;
         }
-        
+
         public override void Install()
         {
             //locales

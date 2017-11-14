@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Discounts;
 using Nop.Plugin.DiscountRules.BillingCountry.Models;
 using Nop.Services.Configuration;
@@ -8,12 +8,15 @@ using Nop.Services.Directory;
 using Nop.Services.Discounts;
 using Nop.Services.Localization;
 using Nop.Services.Security;
+using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
-using Nop.Web.Framework.Security;
+using Nop.Web.Framework.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Nop.Plugin.DiscountRules.BillingCountry.Controllers
 {
-    [AdminAuthorize]
+    [AuthorizeAdmin]
+    [Area(AreaNames.Admin)]
     public class DiscountRulesBillingCountryController : BasePluginController
     {
         #region Fields
@@ -45,7 +48,7 @@ namespace Nop.Plugin.DiscountRules.BillingCountry.Controllers
 
         #region Methods
 
-        public ActionResult Configure(int discountId, int? discountRequirementId)
+        public IActionResult Configure(int discountId, int? discountRequirementId)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageDiscounts))
                 return Content("Access denied");
@@ -62,11 +65,11 @@ namespace Nop.Plugin.DiscountRules.BillingCountry.Controllers
                     return Content("Failed to load requirement.");
             }
 
-            var billingCountryId = _settingService.GetSettingByKey<int>(string.Format("DiscountRequirement.BillingCountry-{0}", discountRequirementId.HasValue ? discountRequirementId.Value : 0));
+            var billingCountryId = _settingService.GetSettingByKey<int>($"DiscountRequirement.BillingCountry-{discountRequirementId ?? 0}");
 
             var model = new RequirementModel
             {
-                RequirementId = discountRequirementId.HasValue ? discountRequirementId.Value : 0,
+                RequirementId = discountRequirementId ?? 0,
                 DiscountId = discountId,
                 CountryId = billingCountryId
             };
@@ -77,14 +80,14 @@ namespace Nop.Plugin.DiscountRules.BillingCountry.Controllers
                 model.AvailableCountries.Add(new SelectListItem() { Text = c.Name, Value = c.Id.ToString(), Selected = discountRequirement != null && c.Id == billingCountryId });
 
             //add a prefix
-            ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("DiscountRulesBillingCountry{0}", discountRequirementId.HasValue ? discountRequirementId.Value.ToString() : "0");
+            ViewData.TemplateInfo.HtmlFieldPrefix = $"DiscountRulesBillingCountry{discountRequirementId?.ToString() ?? "0"}";
 
             return View("~/Plugins/DiscountRules.BillingCountry/Views/Configure.cshtml", model);
         }
 
         [HttpPost]
         [AdminAntiForgery]
-        public ActionResult Configure(int discountId, int? discountRequirementId, int countryId)
+        public IActionResult Configure(int discountId, int? discountRequirementId, int countryId)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageDiscounts))
                 return Content("Access denied");
@@ -100,7 +103,7 @@ namespace Nop.Plugin.DiscountRules.BillingCountry.Controllers
             if (discountRequirement != null)
             {
                 //update existing rule
-                _settingService.SetSetting(string.Format("DiscountRequirement.BillingCountry-{0}", discountRequirement.Id), countryId);
+                _settingService.SetSetting($"DiscountRequirement.BillingCountry-{discountRequirement.Id}", countryId);
             }
             else
             {
@@ -112,10 +115,10 @@ namespace Nop.Plugin.DiscountRules.BillingCountry.Controllers
                 discount.DiscountRequirements.Add(discountRequirement);
                 _discountService.UpdateDiscount(discount);
                 
-                _settingService.SetSetting(string.Format("DiscountRequirement.BillingCountry-{0}", discountRequirement.Id), countryId);
+                _settingService.SetSetting($"DiscountRequirement.BillingCountry-{discountRequirement.Id}", countryId);
             }
 
-            return Json(new { Result = true, NewRequirementId = discountRequirement.Id }, JsonRequestBehavior.AllowGet);
+            return Json(new { Result = true, NewRequirementId = discountRequirement.Id });
         }
 
         #endregion

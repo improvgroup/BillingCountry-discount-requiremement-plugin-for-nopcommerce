@@ -1,6 +1,6 @@
-﻿using System.Web.Mvc;
-using System.Web.Routing;
-using Nop.Web.Framework.Mvc.Routes;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
+using Nop.Web.Framework.Mvc.Routing;
 
 namespace Nop.Plugin.DiscountRules.BillingCountry
 {
@@ -8,14 +8,13 @@ namespace Nop.Plugin.DiscountRules.BillingCountry
     {
         #region Methods
 
-        public void RegisterRoutes(RouteCollection routes)
+        public void RegisterRoutes(IRouteBuilder routeBuilder)
         {
-            routes.MapRoute("Plugin.DiscountRules.BillingCountry.Configure",
+            routeBuilder.MapRoute("Plugin.DiscountRules.BillingCountry.Configure",
                  "Plugins/DiscountRulesBillingCountry/Configure",
-                 new { controller = "DiscountRulesBillingCountry", action = "Configure" },
-                 new[] { "Nop.Plugin.DiscountRules.BillingCountry.Controllers" }
-            );
+                 new { controller = "DiscountRulesBillingCountry", action = "Configure" });
         }
+
         public int Priority
         {
             get
