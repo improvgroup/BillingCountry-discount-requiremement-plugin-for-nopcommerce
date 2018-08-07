@@ -1,4 +1,7 @@
 using System;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Nop.Core.Plugins;
 using Nop.Services.Configuration;
 using Nop.Services.Discounts;
@@ -10,15 +13,24 @@ namespace Nop.Plugin.DiscountRules.BillingCountry
     {
         #region Fields
 
+        private readonly IActionContextAccessor _actionContextAccessor;
         private readonly ISettingService _settingService;
+        private readonly ILocalizationService _localizationService;
+        private readonly IUrlHelperFactory _urlHelperFactory;
 
         #endregion
 
         #region Ctor
 
-        public BillingCountryDiscountRequirementRule(ISettingService settingService)
+        public BillingCountryDiscountRequirementRule(IActionContextAccessor actionContextAccessor,
+            ISettingService settingService,
+            ILocalizationService localizationService,
+            IUrlHelperFactory urlHelperFactory)
         {
+            this._actionContextAccessor = actionContextAccessor;
             this._settingService = settingService;
+            this._localizationService = localizationService;
+            this._urlHelperFactory = urlHelperFactory;
         }
 
         #endregion
@@ -59,32 +71,29 @@ namespace Nop.Plugin.DiscountRules.BillingCountry
         /// </summary>
         /// <param name="discountId">Discount identifier</param>
         /// <param name="discountRequirementId">Discount requirement identifier (if editing)</param>
-        /// <returns>URL</returns>
+        /// <returns>URL</returns>        
         public string GetConfigurationUrl(int discountId, int? discountRequirementId)
         {
-            //configured in RouteProvider.cs
-            var result = "Plugins/DiscountRulesBillingCountry/Configure/?discountId=" + discountId;
-            if (discountRequirementId.HasValue)
-                result += $"&discountRequirementId={discountRequirementId.Value}";
-
-            return result;
+            var urlHelper = _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext);
+            return urlHelper.Action("Configure", "DiscountRulesBillingCountry",
+                new { discountId = discountId, discountRequirementId = discountRequirementId }).TrimStart('/');
         }
 
         public override void Install()
         {
             //locales
-            this.AddOrUpdatePluginLocaleResource("Plugins.DiscountRules.BillingCountry.Fields.SelectCountry", "Select country");
-            this.AddOrUpdatePluginLocaleResource("Plugins.DiscountRules.BillingCountry.Fields.Country", "Billing country");
-            this.AddOrUpdatePluginLocaleResource("Plugins.DiscountRules.BillingCountry.Fields.Country.Hint", "Select required billing country.");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.DiscountRules.BillingCountry.Fields.SelectCountry", "Select country");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.DiscountRules.BillingCountry.Fields.Country", "Billing country");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.DiscountRules.BillingCountry.Fields.Country.Hint", "Select required billing country.");
             base.Install();
         }
 
         public override void Uninstall()
         {
             //locales
-            this.DeletePluginLocaleResource("Plugins.DiscountRules.BillingCountry.Fields.SelectCountry");
-            this.DeletePluginLocaleResource("Plugins.DiscountRules.BillingCountry.Fields.Country");
-            this.DeletePluginLocaleResource("Plugins.DiscountRules.BillingCountry.Fields.Country.Hint");
+            _localizationService.DeletePluginLocaleResource("Plugins.DiscountRules.BillingCountry.Fields.SelectCountry");
+            _localizationService.DeletePluginLocaleResource("Plugins.DiscountRules.BillingCountry.Fields.Country");
+            _localizationService.DeletePluginLocaleResource("Plugins.DiscountRules.BillingCountry.Fields.Country.Hint");
             base.Uninstall();
         }
 
